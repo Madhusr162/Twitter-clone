@@ -1,0 +1,40 @@
+.fa-message {
+    font-size: 120px;
+    color: whitesmoke;
+}
+.back{
+    color: whitesmoke;
+}
+.login {
+    width: 50%;
+}
+.container-fluid {
+    margin-top: 10rem;
+}
+
+@media only screen and (max-width: 768px) {
+    .login {
+        width: 70%;
+    }
+
+    .fa-message {
+        font-size: 60px;
+    }
+
+    .container-fluid {
+        margin-top: 2.5rem;
+    }
+
+    .card-body {
+        padding-left: 1.4rem !important;
+        padding-right: 1.4rem !important;
+    }
+
+    .card {
+        border: none !important;
+    }
+
+    .shadow {
+        box-shadow: none !important;
+    }
+}

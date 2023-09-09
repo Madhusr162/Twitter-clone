@@ -1,0 +1,31 @@
+.pic {
+    background-color: rgb(30, 144, 240);
+    height: 150px;
+    width:90%
+}
+
+.dhoni {
+    border-radius: 50%;
+    margin-top: 70px;
+    margin-right: 420px;
+}
+.buttons{
+    margin-left: 300px;
+}
+.name{
+    margin-right: 500px;
+}
+.dhonismall {
+    border-radius: 50%;
+}
+
+@media only screen and (max-width: 768px) {
+    .buttons{
+        margin-left: auto;
+        margin-top: 50px;
+    }
+    .name{
+        margin-right: auto;
+    }
+    
+}

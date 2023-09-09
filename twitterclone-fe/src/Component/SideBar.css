@@ -1,0 +1,15 @@
+.sidebar-profile {
+    font-size: 25px;
+    margin-top: 90%;
+}
+
+.Link:hover {
+    background-color: black;
+}
+
+@media only screen and (max-width: 768px) {
+
+    .sidebar-profile {
+        margin-top: 10%;
+    }
+}

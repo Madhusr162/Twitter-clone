@@ -1,0 +1,31 @@
+.sidebar{
+    display: flex;
+    flex-direction: column;
+}
+.link{
+    text-decoration: none;
+    color: black;
+    font-size: 25px;
+}
+.icon{
+    font-size: 50px;
+    color: rgb(26, 139, 184)
+}
+.btn-info{
+    width: 150px;
+}
+.like{
+    font-size: 30px;
+    color: red;
+}
+.comment{
+    font-size: 30px;
+    color: aqua;
+}
+.retweet{
+    font-size: 30px;
+    color: green
+}
+.dropZoneContainer>input {
+    display: none;
+  }
