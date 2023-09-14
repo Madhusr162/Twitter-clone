@@ -6,7 +6,16 @@
 .Link:hover {
     background-color: black;
 }
-
+.link:hover{
+    background-color: #d0dcf4;
+    border-radius: 50px;
+    height: 8vh;
+    width: 20vw;
+}
+.Link:active{
+    background-color: #d0dcf4;
+    border-radius: 50px;
+}
 @media only screen and (max-width: 768px) {
 
     .sidebar-profile {

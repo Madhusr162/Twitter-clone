@@ -38,10 +38,10 @@ router.post("/register", function (req, res) {
 
 // login route to make the user login with the particular email and password which is already registered
 router.post("/login", function (req, res) {
-    const { Email, Password } = req.body;
-    if (!Email || !Password)
+    const { UserName, Password } = req.body;
+    if (!UserName || !Password)
         return res.status(400).json({ error: "One or more mandatory field is missing" });
-    usermodel.findOne({ Email: Email })
+    usermodel.findOne({ UserName: UserName })
         .then((userInDB) => {
             if (!userInDB)
                 return res.status(401).json({ error: "Invalid Credentials" });
@@ -63,7 +63,8 @@ router.post("/login", function (req, res) {
 
 // To get a single user details
 router.get("/user/:id", protectedRoute, (req, res) => {
-    usermodel.findById(req.params.id).select('-Password')
+    const id = req.params.id
+    usermodel.findById(id).select('-Password')
         .populate("author", "_id Name UserName Email Followers Following DOB Location")
         .then((userInDB) => {
             if (!userInDB) {
@@ -74,134 +75,143 @@ router.get("/user/:id", protectedRoute, (req, res) => {
         .catch((err) => console.error(err));
 })
 
-// To follow a user
-router.post("/user/:id/follow", protectedRoute, (req, res) => {
- followUser = async (req, res) => {
-        try {
-            const { id } = req.params; // ID of the user to follow
-            const loggedInUserId = req.user.id; // Assuming you have implemented user authentication
-            console.log(id);
-            console.log(loggedInUserId)
-    
-            // Check if the user is trying to follow themselves
-            if (id === loggedInUserId) {
-                return res.status(400).json({ success: false, message: 'You cannot follow yourself' });
-            }
-    
-            // Check if the user to follow exists
-            const userToFollow = await usermodel.findById(id);
-            if (!userToFollow) {
-                return res.status(404).json({ success: false, message: 'User not found' });
-            }
-    
-            // Check if the user is already following the user to follow
-            if (userToFollow.Followers.includes(loggedInUserId)) {
-                return res.status(400).json({ success: false, message: 'You are already following this user' });
-            }
-    
-            // Add the user to follow in the logged-in user's following array
-            await usermodel.findByIdAndUpdate(loggedInUserId, { $push: { Following: id } });
-    
-            // Add the logged-in user in the user to follow's followers array
-            await usermodel.findByIdAndUpdate(id, { $push: { Followers: loggedInUserId } });
-    
-            return res.status(200).json({ success: true });
-        } catch (error) {
-            console.error('Error following user:', error);
-            return res.status(500).json({ success: false, message: 'Internal server error' });
-        }
-    };
-})
+// To follow user function
+const followUser = async (req, res) => {
+    try {
+        const { id } = req.params; // ID of the user to follow
+        const loggedInUserId = req.user.id; // Assuming you have implemented user authentication
+        console.log(id);
+        console.log(loggedInUserId)
 
-// To unfollow a user
-router.post("/user/:id/unfollow", protectedRoute, (req, res) => {
-    unfollowUser = async (req, res) => {
-        try {
-            const { id } = req.params; // ID of the user to unfollow
-            const loggedInUserId = req.user.id; // Assuming you have implemented user authentication
-    
-            // Check if the user is trying to unfollow themselves
-            if (id === loggedInUserId) {
-                return res.status(400).json({ success: false, message: 'You cannot unfollow yourself' });
-            }
-    
-            // Check if the user to unfollow exists
-            const userToUnfollow = await usermodel.findById(id);
-            if (!userToUnfollow) {
-                return res.status(404).json({ success: false, message: 'User not found' });
-            }
-    
-            // Check if the logged-in user is not following the user to unfollow
-            if (!userToUnfollow.Followers.includes(loggedInUserId)) {
-                return res.status(400).json({ success: false, message: 'You are not following this user' });
-            }
-    
-            // Remove the user to unfollow from the logged-in user's following array
-            await usermodel.findByIdAndUpdate(loggedInUserId, { $pull: { Following: id } });
-    
-            // Remove the logged-in user from the user to unfollow's followers array
-            await usermodel.findByIdAndUpdate(id, { $pull: { Followers: loggedInUserId } });
-    
-            return res.status(200).json({ success: true });
-        } catch (error) {
-            console.error('Error unfollowing user:', error);
-            return res.status(500).json({ success: false, message: 'Internal server error' });
+        // Check if the user is trying to follow themselves
+        if (id === loggedInUserId) {
+            return res.status(400).json({ success: false, message: 'You cannot follow yourself' });
         }
-    };
-})
+
+        // Check if the user to follow exists
+        const userToFollow = await usermodel.findById(id);
+        if (!userToFollow) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        // Check if the user is already following the user to follow
+        if (userToFollow.Followers.includes(loggedInUserId)) {
+            return res.status(400).json({ success: false, message: 'You are already following this user' });
+        }
+
+        // Add the user to follow in the logged-in user's following array
+        await usermodel.findByIdAndUpdate(loggedInUserId, { $push: { Following: id } });
+
+        // Add the logged-in user in the user to follow's followers array
+        await usermodel.findByIdAndUpdate(id, { $push: { Followers: loggedInUserId } });
+
+        return res.status(200).json({ success: true });
+    } catch (error) {
+        console.error('Error following user:', error);
+        return res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+};
+
+// Route to follow a user
+router.post("/user/:id/follow", protectedRoute, followUser)
+
+// Function to unfollow a user
+const unfollowUser = async (req, res) => {
+    try {
+        const { id } = req.params; // ID of the user to unfollow
+        const loggedInUserId = req.user.id; // Assuming you have implemented user authentication
+
+        // Check if the user is trying to unfollow themselves
+        if (id === loggedInUserId) {
+            return res.status(400).json({ success: false, message: 'You cannot unfollow yourself' });
+        }
+
+        // Check if the user to unfollow exists
+        const userToUnfollow = await usermodel.findById(id);
+        if (!userToUnfollow) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        // Check if the logged-in user is not following the user to unfollow
+        if (!userToUnfollow.Followers.includes(loggedInUserId)) {
+            return res.status(400).json({ success: false, message: 'You are not following this user' });
+        }
+
+        // Remove the user to unfollow from the logged-in user's following array
+        await usermodel.findByIdAndUpdate(loggedInUserId, { $pull: { Following: id } });
+
+        // Remove the logged-in user from the user to unfollow's followers array
+        await usermodel.findByIdAndUpdate(id, { $pull: { Followers: loggedInUserId } });
+
+        return res.status(200).json({ success: true });
+    } catch (error) {
+        console.error('Error unfollowing user:', error);
+        return res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+};
+
+// Route to unfollow a user
+router.post("/user/:id/unfollow", protectedRoute, unfollowUser)
 
 // To edit user details
-router.put("/user/:id/", protectedRoute, (req, res) => {
-    usermodel.findById(req.params.id);
+router.put("/user/:id/", protectedRoute, async (req, res) => {
+    const loggedInUserId = req.user.id;
     const { Name, DOB, Location } = req.body;
-    if (_id === req.params.id) {
-        if (!Name || !Location || !DOB) {
-            return res.status(400).json({ error: "One or more mandatory field is missing" });
+    const userIdToUpdate = req.params.id;
+    try {
+        if (loggedInUserId === userIdToUpdate) {
+            if (!Name || !Location || !DOB) {
+                return res.status(400).json({ error: "One or more mandatory field is missing" });
+            } else {
+                await usermodel.findByIdAndUpdate(userIdToUpdate, { Name, DOB, Location });
+                res.status(201).json({ result: "Details updated" });
+            }
         } else {
-            res.status(201).json({ result: "Details updated" });
+            return res.status(403).json({ error: "You are not allowed to edit other user details" });
         }
-    } else {
-        return res.status(403).json({ error: "You are not allowed to edit other user details" });
+    } catch (error) {
+        console.error('Error updating user details:', error);
+        return res.status(500).json({ error: "Internal server error" });
     }
-    const userinfo = new usermodel({ Name, DOB, Location });
-    userinfo.save()
 })
 
 // To show all the tweets of the user
-router.post("/user/:id/tweets", (req,res)=>{
-    tweetmodel.find(req.params.id)
-    .then((dbTweets)=>{
-        res.status(200).json({tweets: dbTweets})
-    })
-    .catch((error)=>{
-        console.log(error);
-    })
-})
+router.get("/user/:id/tweets", protectedRoute, async (req, res) => {
+    try {
+        const { id } = req.params.id; // ID of the user whose tweets to retrieve
 
-// To upload the profile picture of the user
-// router.post("/user/:id/uploadProfilePic",(req,res)=>{
-//     uploadProfilePicture = async (req, res) => {
-//         try {
-//             // Get the user ID from the request parameters
-//             const { id } = req.params;
-//             const loggedInUserId = req.user.id; // Assuming you have implemented user authentication
-    
-//             // Ensure that the logged-in user is uploading their own profile picture
-//             if (id !== loggedInUserId) {
-//                 return res.status(403).json({ success: false, message: 'You are not allowed to upload profile pictures for other users.' });
-//             }
-    
-//             // Get the file location where the image was saved by Multer
-//             const imagePath = req.file.path;
-    
-//             // Update the user's profile picture in the database
-//             await usermodel.findByIdAndUpdate(id, { ProfilePic: imagePath });
-    
-//             return res.status(200).json({ success: true, message: 'Profile picture uploaded successfully.' });
-//         } catch (error) {
-//             console.error('Error uploading profile picture:', error);
-//             return res.status(500).json({ success: false, message: 'Internal server error' });
-//         }
-//     };
-// })
+        // Retrieve tweets posted by the specified user
+        const userTweets = await tweetmodel.find({ TweetedBy: id }).exec();
+
+        return res.status(200).json({ success: true, tweets: userTweets });
+    } catch (error) {
+        console.error('Error getting user tweets:', error);
+        return res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+});
+
+// // To upload the profile picture of the user
+exports.uploadProfilePicture = async (req, res) => {
+    try {
+        // Get the user ID from the request parameters
+        const { id } = req.params;
+        const loggedInUserId = req.user.id; // Assuming you have implemented user authentication
+
+        // Ensure that the logged-in user is uploading their own profile picture
+        if (id !== loggedInUserId) {
+            return res.status(403).json({ success: false, message: 'You are not allowed to upload profile pictures for other users.' });
+        }
+
+        // Get the file location where the image was saved by Multer
+        const imagePath = req.file.path;
+
+        // Update the user's profile picture in the database
+        await usermodel.findByIdAndUpdate(id, { ProfilePic: imagePath });
+
+        return res.status(200).json({ success: true, message: 'Profile picture uploaded successfully.' });
+    } catch (error) {
+        console.error('Error uploading profile picture:', error);
+        return res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+};
 module.exports = router;

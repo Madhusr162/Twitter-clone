@@ -1,7 +1,5 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const router = express.Router();
-const tweetmodel = mongoose.model('TweetModel')
 const protectedResource=require('../Middleware/protectedRoute')
 const UserRoutes=require('../Routes/UserRoutes')
 
@@ -12,7 +10,7 @@ destination: (req,file,cb)=>{
     cb(null,"uploads/")
 },
 filename:(req,file,cb)=>{
-    cb(null,`${Date.now()}--${file.originalname}`)
+    cb(null,`ProfilePic-${Date.now()}--${file.originalname}`)
 }
 })
 
@@ -31,15 +29,10 @@ const upload=multer({
         }
     }
 })
-// router.post('/user/:id/uploadProfilePic', protectedResource, upload.single('ProfilePic'), UserRoutes.uploadProfilePicture);
-// router.get("/getall",async(req,res)=>{
-
-//     try {
-//         const data= await tweetmodel.find();
-//         res.status(200).send(data);
-//     } catch (error) {
-//         res.status(400).send("Some Error Occured")
-//     }
-// })
-// router.get("/files/:filename",downloadFile)
+router.post("/uploadFile", protectedResource, upload.single('file'), function(req,res){
+    res.json({"fileName":req.file.filename});
+});
+router.post('/user/:id/uploadProfilePic', protectedResource, upload.single('ProfilePic'), function(req,res){
+    UserRoutes.uploadProfilePicture
+});
 module.exports=router;

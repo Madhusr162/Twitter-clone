@@ -18,7 +18,18 @@
 .dhonismall {
     border-radius: 50%;
 }
+.note{
+  padding: 18px;
+  border: 2px solid #d0dcf4;
+  margin: 15px;
+  border-radius: 10px;
+    background-color: #d0dcf4;
+    color: blue
 
+}
+#formFile{
+    width: 90%;
+}
 @media only screen and (max-width: 768px) {
     .buttons{
         margin-left: auto;

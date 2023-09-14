@@ -1,4 +1,6 @@
 import SideBar from '../Component/SideBar';
+import Modal from 'react-bootstrap/Modal';
+import { useState } from "react";
 import './Profile.css'
 import dhoni from '../Images/dhoni.jpg'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -6,6 +8,14 @@ import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 import { faLocationDot } from '@fortawesome/free-solid-svg-icons';
 import { faCalendarDays } from '@fortawesome/free-regular-svg-icons';
 const Profile = () => {
+    const [showUpload, setShowUpload] = useState(false);
+    const [showUpdate, setShowUpdate] = useState(false);
+
+    const handleUploadClose = () => setShowUpload(false);
+    const handleUploadShow = () => setShowUpload(true);
+
+    const handleUpdateClose = () => setShowUpdate(false);
+    const handleUpdateShow = () => setShowUpdate(true);
 
     return (
         <>
@@ -24,8 +34,8 @@ const Profile = () => {
                                     </div>
                                 </div>
                                 <div className='buttons'>
-                                    <button type="button" className="btn btn-outline-primary me-2 ">Upload Profile Picture</button>
-                                    <button type="button" className="btn btn-outline-secondary ">Edit</button>
+                                    <button type="button" className="btn btn-outline-primary me-2 " onClick={handleUploadShow}>Upload Profile Picture</button>
+                                    <button type="button" className="btn btn-outline-secondary " onClick={handleUpdateShow}>Edit</button>
                                 </div>
                                 <div className='d-flex ms-4'>
                                     <h4>John Doe</h4>
@@ -51,6 +61,62 @@ const Profile = () => {
                     </div>
 
                 </div>
+                <Modal show={showUpload} onHide={handleUploadClose} size="md" centered>
+                <Modal.Header closeButton>
+                    <span className='fw-bold fs-5'>Upload Profile Pic</span>
+                </Modal.Header>
+                <Modal.Body>
+                    <div className='row'>
+                        <div className='col mb-3 note'>
+                            <label >Note: The image should be square in shape</label>
+                        </div>
+                    </div>
+                    <div className='row'>
+                        <div className='col-md-6 col-sm-12'>
+                            <div className="uploadContainer">
+                            <input className="form-control" type="file" id="formFile" />
+                                <br />
+                            </div>
+                        </div>
+                    </div>
+                    <hr/>
+                    <div className='row' >
+                        <div className='col-md-6 col-sm-12 mb-3' style={{marginLeft:"250px"}}>
+                            <button type="button" class="btn btn-secondary me-2 " onClick={handleUploadClose}>Close</button>
+                            <button type="button" class="btn btn-primary" >Save profile pic</button>
+                        </div>
+                    </div>
+
+
+                </Modal.Body>
+            </Modal>
+
+            <Modal show={showUpdate} onHide={handleUpdateClose} size="md" centered>
+                <Modal.Header closeButton>
+                    <span className='fw-bold fs-5'>Edit Profile</span>
+                </Modal.Header>
+                <Modal.Body>
+                    <div className='row'>
+                        <div className='col mb-3 note'>     
+                            <label >Name:</label>
+                            <input type="text" className='form-control mb-3'/>
+                            <label>Location</label>
+                            <input type="text" className='form-control mb-3'/>
+                            <label>Date Of Birth</label>
+                            <input type="date" className='form-control mb-3'/>
+                        </div>
+                    </div>
+                    <hr/>
+                    <div className='row' >
+                        <div className='col-md-6 col-sm-12 mb-3' style={{marginLeft:"320px"}}>
+                            <button type="button" class="btn btn-secondary me-2 " onClick={handleUpdateClose}>Close</button>
+                            <button type="button" class="btn btn-primary" >Edit</button>
+                        </div>
+                    </div>
+
+
+                </Modal.Body>
+            </Modal>
             </div>
         </>
     )

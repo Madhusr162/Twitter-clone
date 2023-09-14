@@ -6,6 +6,7 @@ const UserModel=mongoose.model("UserModel");
 
 module.exports= (req,res,next)=>{
 const {authorization} = req.headers;
+// console.log("protected route called")
 if(!authorization){
     return res.status(401).json({error: "Please log in to continue..!"});
 }

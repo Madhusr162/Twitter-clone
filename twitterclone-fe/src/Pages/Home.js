@@ -1,26 +1,73 @@
 import './Home.css'
 import Modal from 'react-bootstrap/Modal';
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import SideBar from '../Component/SideBar';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHeart } from '@fortawesome/free-regular-svg-icons';
-import { faComment } from '@fortawesome/free-regular-svg-icons';
-import { faRetweet } from '@fortawesome/free-solid-svg-icons';
 import { faImage } from '@fortawesome/free-solid-svg-icons';
-import { faUser } from '@fortawesome/free-solid-svg-icons'
-import bridge from '../Images/GoldenGateBridge-001.jpg'
+import { API_BASE_URL } from '../config';
+import axios from 'axios';
+import { toast } from 'react-toastify'
+import Card from '../Component/Card';
 
 
 const Home = () => {
+    const [image, setImage] = useState({ preview: '', data: '' })
     const [showPost, setShowPost] = useState(false);
-    const [showReply, setShowReply] = useState(false);
+    const [Content, setContent] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [allTweets, setAllTweets] = useState([]);
 
     const handlePostClose = () => setShowPost(false);
     const handlePostShow = () => setShowPost(true);
 
-    const handleReplyClose = () => setShowReply(false);
-    const handleReplyShow = () => setShowReply(true);
+    const CONFIG_OBJ = {
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        }
+    }
+    const getAllTweet = async () => {
+        console.log("getAllTweets");
+        const response = await axios.get(`${API_BASE_URL}/tweet/`, CONFIG_OBJ)
+        if (response.status === 200) {
+            setAllTweets(response.data.tweets)
+        } else {
+            toast.warning("Some error occured")
+        }
+    }
+    const handleFileSelect = (event) => {
+        const img = {
+            preview: URL.createObjectURL(event.target.files[0]),
+            data: event.target.files[0]
+        }
+        setImage(img);
+    }
+    const handleImgUpload = async () => {
+        let formData = new formData();
+        formData.append('file', image.data);
+
+        const response = axios.post(`${API_BASE_URL}/uploadFile`, formData, CONFIG_OBJ)
+        return response;
+    }
+    const addTweet = async () => {
+        if (Content === '') {
+            toast.warning("Content is mandatory")
+        }
+        const imgRes = await handleImgUpload();
+        //add validation for Content
+        const request = { Content: Content, Image: `${API_BASE_URL}/files/${imgRes.data.fileName}` }
+        //write api to call the post
+        const tweetResponse = await axios.post(`${API_BASE_URL}/tweet`, request, CONFIG_OBJ)
+        if (tweetResponse.status === 201) {
+            toast.success("Tweeted successful")
+        } else {
+            toast.warning("Some error occured")
+        }
+    }
+    useEffect(() => {
+        getAllTweet();
+    }, []);
     return (
         <div className='w-75 mx-auto mt-3'>
             <div className="container" style={{ width: "100%" }}>
@@ -32,26 +79,13 @@ const Home = () => {
                                 <h4 className=''>Home</h4>
                                 <button type="button" class="btn btn-info me-5 my-2" onClick={handlePostShow}>Tweet</button>
                             </div>
-                            <div className='card mb-3' style={{ width: "95%" }}>
-                                <div class="card-body">
-                                    <h5 class="card-title text-start"> <FontAwesomeIcon icon={faUser} className='mt-4 mb-2 me-2' />Ronaldo <span className='p-2 text-muted'>- Fri Jan 15, 2023</span></h5>
-                                    <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-                                    <img src={bridge} alt="golden gate bridge" className='img-fluid' />
-                                    <div className='card-end d-flex justify-content-around'>
-                                        <FontAwesomeIcon icon={faHeart} className='like my-3' /><button type="button" onClick={handleReplyShow} style={{border:"none", backgroundColor:"white"}}><FontAwesomeIcon icon={faComment} className='comment my-3' /></button><FontAwesomeIcon icon={faRetweet} className='retweet my-3' />
-                                    </div>
-                                </div>
-                            </div>
-                            <div className='card mb-3' style={{ width: "95%" }}>
-                                <div class="card-body">
-                                    <h5 class="card-title text-start"> <FontAwesomeIcon icon={faUser} className='mt-4 mb-2 me-2' />Ronaldo <span className='p-2 text-muted'>- Fri Jan 15, 2023</span></h5>
-                                    <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-                                    <img src={bridge} alt="golden gate bridge" className='img-fluid' />
-                                    <div className='card-end d-flex justify-content-around'>
-                                        <FontAwesomeIcon icon={faHeart} className='like my-3' /><button type="button" onClick={handleReplyShow} style={{border:"none", backgroundColor:"white"}}><FontAwesomeIcon icon={faComment} className='comment my-3' /></button><FontAwesomeIcon icon={faRetweet} className='retweet my-3' />
-                                    </div>
-                                </div>
-                            </div>
+                            {allTweets.map((tweetData)=>{
+                            return(
+                            <Card tweet={tweetData}/>
+                            )
+                            }
+                        )}
+
                         </div>
 
                     </div>
@@ -64,23 +98,29 @@ const Home = () => {
                 <Modal.Body>
                     <div className='row'>
                         <div className='col mb-3'>
-                            <textarea className="form-control" placeholder="Write your Tweet" rows="5" cols="5" id="floatingTextarea"></textarea>
+                            <textarea onChange={(ev) => setContent(ev.target.value)} className="form-control" placeholder="Write your Tweet" rows="5" cols="5" id="floatingTextarea"></textarea>
                         </div>
                     </div>
                     <div className='row'>
                         <div className='col-md-6 col-sm-12 mb-3'>
-                            <div className="dropZoneContainer">
+                            <div className="dropZoneContainer" >
                                 <label for="file-upload"><FontAwesomeIcon icon={faImage} /></label>
-                                <input type="file" name="file" id="file-upload" />
+                                <input type="file" name="file" id="file-upload" className="FileUpload" accept=".jpg,.png,.jpeg" onChange={handleFileSelect} />
+                                {image.preview && <img src={image.preview} width='200' height='200' alt="preview" className='img-fluid' />}
                                 <br />
                             </div>
                         </div>
                     </div>
                     <hr />
                     <div className='row' >
-                        <div className='col-md-6 col-sm-12 mb-3' style={{marginLeft:"290px"}}>
+                        <div className='col-md-6 col-sm-12 mb-3' style={{ marginLeft: "290px" }}>
+                            {loading ? <div className="col-md-12 mt-3 text-center">
+                                <div className="spinner-border text-primary" role="status">
+                                    <span className="visually-hidden">Loading...</span>
+                                </div>
+                            </div> : ''}
                             <button type="button" class="btn btn-secondary me-2 " onClick={handlePostClose}>Close</button>
-                            <button type="button" class="btn btn-primary" >Tweet</button>
+                            <button type="button" class="btn btn-primary" onClick={() => addTweet}>Tweet</button>
                         </div>
                     </div>
 
@@ -88,27 +128,7 @@ const Home = () => {
                 </Modal.Body>
             </Modal>
 
-            <Modal show={showReply} onHide={handleReplyClose} size="md" centered>
-                <Modal.Header closeButton>
-                    <span className='fw-bold fs-5'>Tweet your reply</span>
-                </Modal.Header>
-                <Modal.Body>
-                    <div className='row'>
-                        <div className='col mb-3'>
-                            <textarea className="form-control" placeholder="Write your Tweet" rows="5" cols="5" id="floatingTextarea"></textarea>
-                        </div>
-                    </div>
-            
-                    <div className='row' >
-                        <div className='col-md-6 col-sm-12 mb-3' style={{marginLeft:"290px"}}>
-                            <button type="button" class="btn btn-secondary me-2 " onClick={handleReplyClose}>Close</button>
-                            <button type="button" class="btn btn-primary" >Tweet</button>
-                        </div>
-                    </div>
 
-
-                </Modal.Body>
-            </Modal>
         </div >
 
     )
