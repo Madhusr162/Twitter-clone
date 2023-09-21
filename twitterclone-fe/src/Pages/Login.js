@@ -53,18 +53,18 @@ const Login = () => {
     return (
         <div className="container-fluid">
             <div className="card shadow mx-auto login">
-            { /*Loading feature*/ }
-                    {loading ? <div className="col-md-12 mt-3 text-center">
-                        <div className="spinner-border text-primary" role="status">
-                            <span className="visually-hidden">Loading...</span>
-                        </div>
-                    </div> : ''}
                 <div className="row ">
                     <div className='col-md-4 col-sm-12 welcome-back' style={{backgroundColor: 'rgb(30,144,240)'}}>
                         <h4 className='mt-5 back'>Welcome Back</h4>
                         <FontAwesomeIcon icon={faMessage} className='fa-message'/>
                     </div>
                     <div className='col-md-8 col-sm-12'>
+                    { /*Loading feature*/ }
+                    {loading ? <div className="col-md-12 mt-3 text-center">
+                        <div className="spinner-border text-primary" role="status">
+                            <span className="visually-hidden">Loading...</span>
+                        </div>
+                    </div> : ''}
                         <div className="card-body">
                             <h4 className="card-title mt-5 fw-bold text-start">Log In</h4>
                             <form onSubmit={(e)=>login(e)}>

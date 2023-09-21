@@ -9,7 +9,8 @@ import { API_BASE_URL } from '../config';
 import axios from 'axios';
 import { toast } from 'react-toastify'
 import Card from '../Component/Card';
-
+import { useSelector } from "react-redux"
+import { useNavigate } from "react-router-dom";
 
 const Home = () => {
     const [image, setImage] = useState({ preview: '', data: '' })
@@ -17,21 +18,28 @@ const Home = () => {
     const [Content, setContent] = useState(false);
     const [loading, setLoading] = useState(false);
     const [allTweets, setAllTweets] = useState([]);
+    const [user, setUser] = useState("");
 
     const handlePostClose = () => setShowPost(false);
     const handlePostShow = () => setShowPost(true);
 
+    const data=useSelector(state=>state.userReducer);
+    const userData=data.user;
+    const navigate = useNavigate();
+    
+
     const CONFIG_OBJ = {
         headers: {
-            "Content-Type": "application/json",
+            "Content-Type": "Application/json",
             "Authorization": "Bearer " + localStorage.getItem("token")
-        }
     }
+}
     const getAllTweet = async () => {
         console.log("getAllTweets");
         const response = await axios.get(`${API_BASE_URL}/tweet/`, CONFIG_OBJ)
         if (response.status === 200) {
             setAllTweets(response.data.tweets)
+            console.log(response.data)
         } else {
             toast.warning("Some error occured")
         }
@@ -43,31 +51,55 @@ const Home = () => {
         }
         setImage(img);
     }
-    const handleImgUpload = async () => {
-        let formData = new formData();
-        formData.append('file', image.data);
-
-        const response = axios.post(`${API_BASE_URL}/uploadFile`, formData, CONFIG_OBJ)
-        return response;
-    }
-    const addTweet = async () => {
+    
+    // const handleImgUpload = async () => {
+        
+    //     console.log(response);
+    //     return response;
+        
+    // }
+    const addTweet = async (e) => {
+        e.preventDefault()
+        console.log("add tweet is called")
+        //add validation for Content
         if (Content === '') {
             toast.warning("Content is mandatory")
         }
-        const imgRes = await handleImgUpload();
-        //add validation for Content
-        const request = { Content: Content, Image: `${API_BASE_URL}/files/${imgRes.data.fileName}` }
+        const formData = new FormData();
+        console.log(image.data)
+        formData.append('file', image.data);
+        console.log(formData)
+       
+        const response = await axios.post(`${API_BASE_URL}/uploadFile`, formData, CONFIG_OBJ)
+        console.log(response.data.fileName);
+
+        const request = { Content: Content, Image: `${API_BASE_URL}/uploads/${response.data.fileName}` }
         //write api to call the post
         const tweetResponse = await axios.post(`${API_BASE_URL}/tweet`, request, CONFIG_OBJ)
         if (tweetResponse.status === 201) {
-            toast.success("Tweeted successful")
+            toast.success("Tweeted successful");
+            getAllTweet();
+            handlePostClose();
         } else {
             toast.warning("Some error occured")
         }
     }
+    const deleteTweet = async (postId) => {
+        const response = await axios.delete(`${API_BASE_URL}/tweet/delete/${postId}`, CONFIG_OBJ);
+        if (response.status === 200) {
+            getAllTweet();
+            toast.success("Tweet deleted");
+        }
+    }
     useEffect(() => {
         getAllTweet();
+        let userInfo = JSON.parse(localStorage.getItem("user"));
+        if (!userInfo) {
+          navigate("/");
+        }
+        setUser(userInfo);
     }, []);
+
     return (
         <div className='w-75 mx-auto mt-3'>
             <div className="container" style={{ width: "100%" }}>
@@ -79,12 +111,12 @@ const Home = () => {
                                 <h4 className=''>Home</h4>
                                 <button type="button" class="btn btn-info me-5 my-2" onClick={handlePostShow}>Tweet</button>
                             </div>
-                            {allTweets.map((tweetData)=>{
-                            return(
-                            <Card tweet={tweetData}/>
-                            )
+                            {allTweets.map((tweetData) => {
+                                return (
+                                    <Card tweet={tweetData} deleteTweet={deleteTweet} />
+                                )
                             }
-                        )}
+                            )}
 
                         </div>
 
@@ -120,7 +152,7 @@ const Home = () => {
                                 </div>
                             </div> : ''}
                             <button type="button" class="btn btn-secondary me-2 " onClick={handlePostClose}>Close</button>
-                            <button type="button" class="btn btn-primary" onClick={() => addTweet}>Tweet</button>
+                            <button type="button" class="btn btn-primary" onClick={addTweet}>Tweet</button>
                         </div>
                     </div>
 

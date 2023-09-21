@@ -2,15 +2,14 @@ const express = require('express');
 const router = express.Router();
 const protectedResource=require('../Middleware/protectedRoute')
 const UserRoutes=require('../Routes/UserRoutes')
-
 const multer=require("multer");
 
 const storage=multer.diskStorage({
-destination: (req,file,cb)=>{
-    cb(null,"uploads/")
+destination: (req, file, cb) => {
+    cb(null, 'uploads/')
 },
 filename:(req,file,cb)=>{
-    cb(null,`ProfilePic-${Date.now()}--${file.originalname}`)
+    cb(null,file.originalname)
 }
 })
 
@@ -29,8 +28,10 @@ const upload=multer({
         }
     }
 })
-router.post("/uploadFile", protectedResource, upload.single('file'), function(req,res){
-    res.json({"fileName":req.file.filename});
+router.post("/uploadFile", upload.single('file'), function (req, res) {
+    console.log(req.file.filename)
+    res.json({ "fileName": req.file.filename });
+    
 });
 router.post('/user/:id/uploadProfilePic', protectedResource, upload.single('ProfilePic'), function(req,res){
     UserRoutes.uploadProfilePicture

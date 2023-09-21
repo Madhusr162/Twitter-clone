@@ -1,0 +1,13 @@
+
+.like{
+    font-size: 30px;
+    color: red;
+}
+.comment{
+    font-size: 30px;
+    color: aqua;
+}
+.retweet{
+    font-size: 30px;
+    color: green
+}

@@ -49,7 +49,7 @@ router.post("/login", function (req, res) {
                 .then((didMatch) => {
                     if (didMatch) {
                         const jwtToken = jwt.sign({ _id: userInDB._id }, JWT_SECRET);
-                        const userInfo = { "E-mail": userInDB.Email, "User Name": userInDB.UserName }
+                        const userInfo = { "E-mail": userInDB.Email, "UserName": userInDB.UserName, "id": userInDB._id, "Name": userInDB.Name, "Followers": userInDB.Followers, "Following": userInDB.Following, "ProfilePic": userInDB.ProfilePic, "Location": userInDB.Location, "DOB": userInDB.DOB  }
                         res.status(200).json({ result: { token: jwtToken, user: userInfo } });
                     } else {
                         return res.status(401).json({ error: "Invalid Credentials" });
@@ -155,9 +155,10 @@ router.post("/user/:id/unfollow", protectedRoute, unfollowUser)
 
 // To edit user details
 router.put("/user/:id/", protectedRoute, async (req, res) => {
-    const loggedInUserId = req.user.id;
+    const loggedInUserId = req.user._id;
     const { Name, DOB, Location } = req.body;
     const userIdToUpdate = req.params.id;
+    console.log(loggedInUserId,userIdToUpdate);
     try {
         if (loggedInUserId === userIdToUpdate) {
             if (!Name || !Location || !DOB) {

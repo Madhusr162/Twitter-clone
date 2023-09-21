@@ -6,6 +6,7 @@ const UserModel=mongoose.model("UserModel");
 
 module.exports= (req,res,next)=>{
 const {authorization} = req.headers;
+console.log(authorization)
 // console.log("protected route called")
 if(!authorization){
     return res.status(401).json({error: "Please log in to continue..!"});
@@ -13,8 +14,9 @@ if(!authorization){
 const token=authorization.replace("Bearer ", "");
 jwt.verify(token, JWT_SECRET, (error, payload)=>{
 if(error){
-    return res.status(401).json({error: "Please log in to continue..!"});
+    return res.status(400).json({error: "Please log in to continue..!"});
 }
+console.log("authorized")
 const {_id}=payload;
 console.log(payload);
 UserModel.findById(_id)
