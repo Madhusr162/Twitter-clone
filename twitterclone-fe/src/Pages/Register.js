@@ -19,7 +19,7 @@ const Register = () => {
     const register = (event) => {
         event.preventDefault();
         setLoading(true);
-        const requestData={Name: Name, UserName: UserName, Email, Password}
+        const requestData={Name, UserName, Email, Password}
         axios.post(`${API_BASE_URL}/register`, requestData)
             .then((result) => {
                 console.log(result.status)

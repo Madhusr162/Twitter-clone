@@ -6,7 +6,6 @@ const bcryptjs = require('bcryptjs');
 const usermodel = mongoose.model("UserModel");
 const { JWT_SECRET } = require('../config');
 const protectedRoute = require('../Middleware/protectedRoute');
-const { use } = require('./TweetRoutes');
 const tweetmodel = mongoose.model("TweetModel");
 
 
@@ -17,7 +16,7 @@ router.post("/register", function (req, res) {
         return res.status(400).json({ error: "One or more mandatory field is missing" });
     usermodel.findOne({ Email: Email })
         .then((userInDB) => {
-            if (userInDB)
+            if (userInDB)//checking whether the user is already registered
                 return res.status(500).json({ error: "User with this email already registered" });
             bcryptjs.hash(Password, 16)
                 .then((hashedPassword) => {
@@ -157,7 +156,7 @@ router.post("/user/:id/unfollow", protectedRoute, unfollowUser)
 router.put("/user/:id/", protectedRoute, async (req, res) => {
     const loggedInUserId = req.user._id;
     const { Name, DOB, Location } = req.body;
-    const userIdToUpdate = req.params.id;
+    const {userIdToUpdate} = req.params.id;
     console.log(loggedInUserId,userIdToUpdate);
     try {
         if (loggedInUserId === userIdToUpdate) {

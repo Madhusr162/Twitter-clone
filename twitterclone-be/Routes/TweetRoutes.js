@@ -89,9 +89,9 @@ router.put("/tweet/:id/dislike", protectedRoute, async (req, res) => {
 
 router.post("/tweet/:id/reply", protectedRoute, async (req, res) => {
     try {
-        const { id } = req.params; // Get the parent tweet's ID from the URL parameter
-        const userId = req.user._id; // Get the user's ID from the authentication middleware
-        const { Content } = req.body; // Get the reply content from the request body
+        const { id } = req.params; 
+        const userId = req.user._id; 
+        const { Content } = req.body; 
 
         // Find the parent tweet by its ID
         const parentTweet = await tweetmodel.findById(id);

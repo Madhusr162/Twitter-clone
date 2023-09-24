@@ -28,7 +28,7 @@ const Login = () => {
         await axios.post(`${API_BASE_URL}/login`, requestData)
             .then((result) => {
                 console.log(requestData);
-                console.log(result);
+                console.log(result.data);
                 /*Checking conditions whether user successfully logged in*/
                 if (result.status === 200) {
                     setLoading(false);

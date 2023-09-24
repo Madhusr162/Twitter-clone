@@ -27,7 +27,7 @@ const Card = (props) => {
     const CONFIG_OBJ = {
         headers: {
             "Content-Type": "Application/json",
-            "Authorization": "Bearer " + localStorage.getItem("token")
+            "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NTBhYzZkN2I2YjVlMGVhYmE4YWM5MmQiLCJpYXQiOjE2OTUyMjI0MTN9.9mF4MdiBMByx9sCSY8SruZ1GbV1HE_LZSIRXNt8sxBs"
     }
 }
     

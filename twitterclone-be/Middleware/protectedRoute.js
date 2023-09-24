@@ -5,7 +5,7 @@ const mongoose=require("mongoose");
 const UserModel=mongoose.model("UserModel");
 
 module.exports= (req,res,next)=>{
-const {authorization} = req.headers;
+const {authorization} = req.headers;//getting the header value from the front end
 console.log(authorization)
 // console.log("protected route called")
 if(!authorization){
